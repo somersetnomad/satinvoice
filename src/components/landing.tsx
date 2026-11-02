@@ -31,6 +31,7 @@ import {
   Zap,
 } from 'lucide-react'
 import type { ThemeProviderProps } from 'next-themes'
+import { WalletReferral } from '@/components/wallet-referral'
 
 const SAMPLE_DOC = {
   number: 'INV-2026-0042',
@@ -256,6 +257,11 @@ export function Landing({
                 Create a free account — {freeInvoices} invoices free, no card. Unlock unlimited for{' '}
                 {formatSats(unlockSats)} sats, once.
               </p>
+              <WalletReferral
+                url={settings?.walletReferralUrl}
+                lead="New to Lightning? Get paid in sats in minutes."
+                className="mt-2"
+              />
             </motion.div>
 
             <motion.div

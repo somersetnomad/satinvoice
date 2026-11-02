@@ -44,6 +44,7 @@ export function SettingsDialog({
   const [freeInvoices, setFreeInvoices] = useState('')
   const [brandName, setBrandName] = useState('')
   const [brandLogo, setBrandLogo] = useState('')
+  const [walletReferralUrl, setWalletReferralUrl] = useState('')
   const isOperator = role === 'operator'
 
   useEffect(() => {
@@ -56,6 +57,7 @@ export function SettingsDialog({
       setFreeInvoices(String(settings.freeInvoices ?? ''))
       setBrandName(settings.brandName ?? '')
       setBrandLogo(settings.brandLogo ?? '')
+      setWalletReferralUrl(settings.walletReferralUrl ?? '')
     }, 0)
     return () => clearTimeout(t)
   }, [settings, open])
@@ -73,6 +75,7 @@ export function SettingsDialog({
         payload.freeInvoices = freeInvoices.trim()
         payload.brandName = brandName
         payload.brandLogo = brandLogo
+        payload.walletReferralUrl = walletReferralUrl
       }
       const json = await fetchJson<SettingsDTO>('/api/settings', {
         method: 'PUT',
@@ -189,6 +192,19 @@ export function SettingsDialog({
                 <p className="text-xs text-muted-foreground">
                   Replaces the bolt in the header. Square image works best; a broken URL falls back
                   to the bolt.
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="set-referral">Wallet referral link</Label>
+                <Input
+                  id="set-referral"
+                  placeholder="https://getalby.com/invited-by/…"
+                  value={walletReferralUrl}
+                  onChange={(e) => setWalletReferralUrl(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Shown as &quot;Get a free wallet&quot; to users and clients without Lightning (invoice form,
+                  unlock panel, client invoice page, PDF and email). Clear it to restore the default.
                 </p>
               </div>
             </>

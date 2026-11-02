@@ -17,8 +17,8 @@ async function GET__impl(req: Request, { params }: { params: Promise<{ id: strin
   const inv = await db.invoice.findFirst({ where: { id, ownerId: user.id } })
   if (!inv) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
 
-  const { brandName } = await getBranding()
-  const bytes = await renderInvoicePdf(toInvoiceDTO(inv), { brandName })
+  const { brandName, walletReferralUrl } = await getBranding()
+  const bytes = await renderInvoicePdf(toInvoiceDTO(inv), { brandName, walletReferralUrl })
   const inline = new URL(req.url).searchParams.get('inline') === '1'
   return new Response(Buffer.from(bytes), {
     headers: {

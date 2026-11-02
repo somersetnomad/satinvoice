@@ -13,6 +13,8 @@ import { db } from '@/lib/db'
 export const DEFAULT_UNLOCK_SATS = 21000
 export const DEFAULT_FREE_INVOICES = 3
 export const DEFAULT_BRAND_NAME = 'SatInvoice'
+/** Default "get a Lightning wallet" link (Alby referral) shown to people without a wallet. */
+export const DEFAULT_WALLET_REFERRAL = 'https://getalby.com/invited-by/whiznurturing992525'
 
 export type InstanceConfig = {
   lightningAddress: string | null
@@ -21,6 +23,7 @@ export type InstanceConfig = {
   freeInvoices: number
   brandName: string
   brandLogo: string | null
+  walletReferralUrl: string
 }
 
 function envInt(raw: string | undefined): number | null {
@@ -56,6 +59,8 @@ export async function getInstanceConfig(): Promise<InstanceConfig> {
     brandName:
       process.env.BRAND_NAME?.trim().slice(0, 40) || s?.brandName?.trim().slice(0, 40) || DEFAULT_BRAND_NAME,
     brandLogo: process.env.BRAND_LOGO?.trim() || s?.brandLogo?.trim() || null,
+    walletReferralUrl:
+      process.env.WALLET_REFERRAL_URL?.trim() || s?.walletReferral?.trim() || DEFAULT_WALLET_REFERRAL,
   }
 }
 
@@ -63,11 +68,15 @@ export async function getInstanceConfig(): Promise<InstanceConfig> {
  * Branding only, safe to call from server components that must never throw
  * (root layout metadata). Falls back to defaults if the DB is unreachable.
  */
-export async function getBranding(): Promise<{ brandName: string; brandLogo: string | null }> {
+export async function getBranding(): Promise<{
+  brandName: string
+  brandLogo: string | null
+  walletReferralUrl: string
+}> {
   try {
     const cfg = await getInstanceConfig()
-    return { brandName: cfg.brandName, brandLogo: cfg.brandLogo }
+    return { brandName: cfg.brandName, brandLogo: cfg.brandLogo, walletReferralUrl: cfg.walletReferralUrl }
   } catch {
-    return { brandName: DEFAULT_BRAND_NAME, brandLogo: null }
+    return { brandName: DEFAULT_BRAND_NAME, brandLogo: null, walletReferralUrl: DEFAULT_WALLET_REFERRAL }
   }
 }

@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
+import { PDFDocument, PDFString, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
 import QRCode from 'qrcode'
 import type { InvoiceDTO } from '@/lib/types'
 
@@ -95,7 +95,7 @@ function wrap(text: string, font: PDFFont, size: number, maxWidth: number): stri
 
 export async function renderInvoicePdf(
   inv: InvoiceDTO,
-  opts: { brandName: string; clientView?: boolean }
+  opts: { brandName: string; clientView?: boolean; walletReferralUrl?: string }
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.create()
   doc.setTitle(`Invoice ${inv.number}`)
@@ -271,6 +271,22 @@ export async function renderInvoicePdf(
     text('LIGHTNING PAYMENT', tx, y - 22, 9, f.bold, ORANGE)
     text(inv.lightningAddress, tx, y - 40, 12, f.monoBold)
     text(`Scan with any Lightning wallet and send ${fmtSats(inv.totalSats)} sats.`, tx, y - 56, 9, f.regular, MUTED)
+    if (opts.walletReferralUrl) {
+      text('New to Lightning? Get a free wallet:', tx, y - 74, 8, f.regular, FAINT)
+      const url = clean(opts.walletReferralUrl)
+      const ux = tx + f.regular.widthOfTextAtSize('New to Lightning? Get a free wallet: ', 8)
+      text(url, ux, y - 74, 8, f.regular, ORANGE)
+      // Make the URL clickable.
+      const linkW = f.regular.widthOfTextAtSize(url, 8)
+      const annot = doc.context.obj({
+        Type: 'Annot',
+        Subtype: 'Link',
+        Rect: [ux, y - 76, ux + linkW, y - 66],
+        Border: [0, 0, 0],
+        A: { Type: 'Action', S: 'URI', URI: PDFString.of(opts.walletReferralUrl) },
+      })
+      page.node.addAnnot(doc.context.register(annot))
+    }
     y -= qrSize + 24
   }
 

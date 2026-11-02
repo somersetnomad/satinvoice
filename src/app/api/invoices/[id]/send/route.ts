@@ -50,8 +50,8 @@ async function POST__impl(req: Request, { params }: { params: Promise<{ id: stri
   // Public web page for this invoice — the email's big "View invoice" button.
   const { token } = await ensureShareToken(inv.id)
   const publicUrl = `${resolveOrigin(req, body.origin)}/?i=${token}`
-  const { brandName } = await getBranding()
-  const email = buildInvoiceEmail(dto, body.message, publicUrl, brandName)
+  const { brandName, walletReferralUrl } = await getBranding()
+  const email = buildInvoiceEmail(dto, body.message, publicUrl, brandName, walletReferralUrl)
 
   try {
     const transport = nodemailer.createTransport({
@@ -73,7 +73,7 @@ async function POST__impl(req: Request, { params }: { params: Promise<{ id: stri
       attachments: [
         {
           filename: pdfFilename(inv.number),
-          content: Buffer.from(await renderInvoicePdf(dto, { brandName, clientView: true })),
+          content: Buffer.from(await renderInvoicePdf(dto, { brandName, clientView: true, walletReferralUrl })),
           contentType: 'application/pdf',
         },
       ],

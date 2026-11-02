@@ -28,6 +28,7 @@ async function buildDTO(user: AuthedUser | null): Promise<SettingsDTO> {
     freeInvoices: cfg.freeInvoices,
     brandName: cfg.brandName,
     brandLogo: cfg.brandLogo,
+    walletReferralUrl: cfg.walletReferralUrl,
     payments: { lnurl: !!cfg.lightningAddress, zaprite: !!cfg.zapriteLink },
   }
 }
@@ -49,6 +50,7 @@ type SettingsBody = Partial<{
   freeInvoices: unknown
   brandName: unknown
   brandLogo: unknown
+  walletReferralUrl: unknown
 }>
 
 const OPERATOR_KEYS = [
@@ -58,6 +60,7 @@ const OPERATOR_KEYS = [
   'freeInvoices',
   'brandName',
   'brandLogo',
+  'walletReferralUrl',
 ] as const
 
 const asText = (v: unknown) => (typeof v === 'string' ? v.trim() : v == null ? '' : String(v).trim())
@@ -96,6 +99,7 @@ async function PUT__impl(req: Request) {
     freeInvoices?: number | null
     brandName?: string | null
     brandLogo?: string | null
+    walletReferral?: string | null
   } = {}
   const bad = (message: string) => NextResponse.json({ error: message }, { status: 400 })
 
@@ -144,6 +148,12 @@ async function PUT__impl(req: Request) {
     if (v && (v.length > 2000 || !/^(https?:\/\/\S+|data:image\/)/.test(v)))
       return bad('Logo must be an https:// image URL')
     data.brandLogo = v
+  }
+  if (body.walletReferralUrl !== undefined) {
+    const v = asText(body.walletReferralUrl) || null // empty = back to the default link
+    if (v && (v.length > 500 || !/^https:\/\/\S+$/.test(v)))
+      return bad('Wallet referral link must be an https:// URL')
+    data.walletReferral = v
   }
 
   if (Object.keys(data).length > 0) {

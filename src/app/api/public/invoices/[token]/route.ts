@@ -46,7 +46,12 @@ async function GET__impl(_req: Request, { params }: { params: Promise<{ token: s
 
   // Public branding lets the share page wear the operator's white-label.
   const cfg = await getInstanceConfig()
-  return NextResponse.json({ ...dto, brandName: cfg.brandName, brandLogo: cfg.brandLogo })
+  return NextResponse.json({
+    ...dto,
+    brandName: cfg.brandName,
+    brandLogo: cfg.brandLogo,
+    walletReferralUrl: cfg.walletReferralUrl,
+  })
 }
 
 

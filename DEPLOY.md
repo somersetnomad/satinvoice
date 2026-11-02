@@ -18,6 +18,7 @@ A sats-native invoicing micro-tool. Next.js 16 + Prisma. Multi-user: every visit
 | `ZAPRITE_PAY_LINK` | forces the Zaprite checkout link |
 | `UNLOCK_SATS` / `FREE_INVOICES` | forces the reseller pricing (see *Make it yours* below) |
 | `BRAND_NAME` / `BRAND_LOGO` | forces the white-label branding |
+| `WALLET_REFERRAL_URL` | forces the "Get a free wallet" referral link shown to people without Lightning (default: built-in Alby referral; also editable in Settings) |
 | `ZAPRITE_WEBHOOK_SECRET` | recommended with Zaprite — the webhook then only accepts calls carrying `?secret=<value>` |
 | `ALLOW_SELF_CONFIRM` | `true` lets users unlock by clicking *I've paid* without any verification (off by default — see *How unlock payments are confirmed*) |
 | `APP_URL` | optional public origin (e.g. `https://invoices.example.com`) used in share/email links |
@@ -141,7 +142,7 @@ You deployed with the SQLite schema (default `prisma/schema.prisma`) but a Postg
 
 ### Upgrading an existing deployment to this version
 
-This version adds database indexes. Run `npx prisma db push` once against your `DATABASE_URL` after deploying (it's non-destructive).
+This version adds database indexes and a `walletReferral` settings column. Run `npx prisma db push` once against your `DATABASE_URL` after deploying (it's non-destructive).
 
 ### Browser shows "Unexpected end of JSON input" (fixed)
 

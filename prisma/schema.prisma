@@ -86,5 +86,6 @@ model Settings {
   freeInvoices    Int? // OPERATOR ONLY: free invoices per account (null = 3)
   brandName       String? // OPERATOR ONLY: white-label instance name (null = "SatInvoice")
   brandLogo       String? // OPERATOR ONLY: URL of the brand logo image
+  walletReferral  String? // OPERATOR ONLY: "get a Lightning wallet" referral link (null = default)
   updatedAt       DateTime @updatedAt
 }

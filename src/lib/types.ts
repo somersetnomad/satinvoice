@@ -54,6 +54,8 @@ export type SettingsDTO = {
   brandName: string
   /** White-label logo image URL (operator-configurable) */
   brandLogo: string | null
+  /** "Get a Lightning wallet" referral link shown to people without a wallet */
+  walletReferralUrl: string
   /** Which unlock payment methods the operator has configured (visible to everyone) */
   payments: { lnurl: boolean; zaprite: boolean }
 }
@@ -62,6 +64,7 @@ export type SettingsDTO = {
 export type Branding = {
   brandName: string
   brandLogo: string | null
+  walletReferralUrl: string
 }
 
 /** Response of GET /api/public/invoices/[token] */

@@ -19,6 +19,7 @@ import {
 } from '@/lib/types'
 import { formatSats } from '@/lib/format'
 import { fetchJson } from '@/lib/utils'
+import { WalletReferral } from '@/components/wallet-referral'
 
 type Provider = 'demo' | 'lnurl' | 'zaprite'
 
@@ -239,6 +240,14 @@ export function UnlockCard({
                 ? 'Unlock payments are not set up yet. Add your Lightning Address or Zaprite link in Settings (gear icon) so users can pay you.'
                 : 'Unlock payments are not set up on this site yet. The site operator needs to add a Lightning Address.'}
             </p>
+          ) : null}
+
+          {!isOperator ? (
+            <WalletReferral
+              url={settings?.walletReferralUrl}
+              lead="Need a Lightning wallet to pay?"
+              className="justify-center"
+            />
           ) : null}
 
           {provider === 'lnurl' && isOperator ? (

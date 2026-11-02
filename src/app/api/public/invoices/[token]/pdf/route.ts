@@ -16,8 +16,8 @@ async function GET__impl(req: Request, { params }: { params: Promise<{ token: st
   const inv = await db.invoice.findUnique({ where: { shareToken: token } })
   if (!inv) return NextResponse.json({ error: 'not_found' }, { status: 404 })
 
-  const { brandName } = await getBranding()
-  const bytes = await renderInvoicePdf(toInvoiceDTO(inv), { brandName, clientView: true })
+  const { brandName, walletReferralUrl } = await getBranding()
+  const bytes = await renderInvoicePdf(toInvoiceDTO(inv), { brandName, clientView: true, walletReferralUrl })
   const inline = new URL(req.url).searchParams.get('inline') === '1'
   return new Response(Buffer.from(bytes), {
     headers: {

@@ -31,6 +31,7 @@ import {
   type SettingsDTO,
 } from '@/lib/types'
 import { fiatToSats, formatSats, isValidLightningAddress } from '@/lib/format'
+import { WalletReferral } from '@/components/wallet-referral'
 
 export type InvoiceFormPayload = {
   senderName: string
@@ -459,6 +460,8 @@ export function InvoiceForm({
           />
           {lnAddress && !isValidLightningAddress(lnAddress) ? (
             <p className="text-xs text-destructive">Format should be name@domain.com</p>
+          ) : !lnAddress ? (
+            <WalletReferral url={settings?.walletReferralUrl} lead="No Lightning Address yet?" />
           ) : null}
         </div>
         <div className="space-y-1.5 sm:col-span-2">

@@ -8,6 +8,7 @@ import { BrandMark } from '@/components/brand-mark'
 import type { PublicInvoiceResponse } from '@/lib/types'
 import { fetchJson } from '@/lib/utils'
 import { FileDown, FileQuestion, Loader2, Printer } from 'lucide-react'
+import { WalletReferral } from '@/components/wallet-referral'
 
 /**
  * Client-facing read-only invoice page, reachable via /?i=<shareToken>.
@@ -123,6 +124,13 @@ export function PublicInvoiceView({ token }: { token: string }) {
           <p className="mb-4 text-center text-sm text-muted-foreground print:hidden">
             {invoice.senderName} sent you this invoice — pay in sats via the Lightning QR below.
           </p>
+          {invoice.lightningAddress ? (
+            <WalletReferral
+              url={invoice.walletReferralUrl}
+              lead="No Lightning wallet yet?"
+              className="-mt-2 mb-4 justify-center print:hidden"
+            />
+          ) : null}
           <div id="invoice-print">
             <InvoiceDocument data={doc} brandName={invoice.brandName || undefined} />
           </div>

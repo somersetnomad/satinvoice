@@ -19,7 +19,8 @@ export function buildInvoiceEmail(
   inv: InvoiceDTO,
   personalMessage?: string,
   publicUrl?: string,
-  brandName = 'SatInvoice'
+  brandName = 'SatInvoice',
+  walletReferralUrl?: string
 ): BuiltEmail {
   const brand = esc(brandName)
   const symbol = SYMBOLS[inv.currency] ?? ''
@@ -57,6 +58,7 @@ export function buildInvoiceEmail(
          <p style="margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:1px;color:#ea580c;">&#9889; PAY INSTANTLY OVER LIGHTNING</p>
          <p style="margin:0;font-family:monospace;font-size:15px;font-weight:600;color:#1a1a1a;word-break:break-all;">${esc(inv.lightningAddress)}</p>
          <p style="margin:6px 0 0;font-size:12px;color:#8a8a8a;">Scan this Lightning Address with any Lightning wallet to pay ${formatSats(inv.totalSats)} sats.</p>
+         ${walletReferralUrl ? `<p style="margin:6px 0 0;font-size:12px;color:#8a8a8a;">New to Lightning? <a href="${esc(walletReferralUrl)}" style="color:#ea580c;">Get a free wallet &#8594;</a></p>` : ''}
        </div>`
     : ''
 
@@ -132,6 +134,7 @@ export function buildInvoiceEmail(
     `Total: ${fiatTotal}  ≈ ${formatSats(inv.totalSats)} sats`,
     `Rate at issue: 1 BTC = ${symbol}${inv.fxRate.toLocaleString('en-GB', { maximumFractionDigits: 2 })}`,
     inv.lightningAddress ? `Pay over Lightning: ${inv.lightningAddress}` : '',
+    inv.lightningAddress && walletReferralUrl ? `New to Lightning? Get a free wallet: ${walletReferralUrl}` : '',
     `Due: ${inv.dueDate ? formatDate(inv.dueDate) : 'On receipt'}`,
     '',
     `Issued with ${brandName} — invoices on a bitcoin standard`,
