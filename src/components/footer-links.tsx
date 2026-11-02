@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 
 const LINKS = [
+  { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
   { href: '/about', label: 'About' },
   { href: '/privacy', label: 'Privacy' },

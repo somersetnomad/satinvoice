@@ -199,6 +199,9 @@ export function Landing({
             <Button variant="ghost" size="sm" onClick={() => scrollTo('pricing')}>
               Pricing
             </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/blog">Blog</a>
+            </Button>
           </nav>
           <div className="flex items-center gap-2">
             <Button

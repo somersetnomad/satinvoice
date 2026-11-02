@@ -5,6 +5,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getBranding } from "@/lib/settings";
+import { siteUrl } from "@/lib/blog";
+import { getOperatorInfo } from "@/lib/operator";
 
 // Self-hosted (npm `geist`) so builds never depend on reaching Google Fonts.
 const geistSans = GeistSans;
@@ -19,9 +21,15 @@ export const dynamic = "force-dynamic";
 // if the DB is unreachable the built-in defaults apply.
 export async function generateMetadata(): Promise<Metadata> {
   const { brandName } = await getBranding();
+  const title = `${brandName} — Invoice in pounds, get paid in bitcoin`;
+  const description = `Bitcoin invoicing for freelancers: price in GBP, USD or EUR, get paid in sats over Lightning. Live BTC rate, Lightning QR, PDF invoices, VAT. First invoices free.`;
   return {
-    title: `${brandName} — Professional invoices, priced in bitcoin`,
-    description: `Create professional invoices priced in satoshis with live BTC rates, Lightning Address payment QR codes, and PDF export. Built for freelancers on a bitcoin standard.`,
+    metadataBase: new URL(siteUrl()),
+    title,
+    description,
+    alternates: { canonical: "/" },
+    openGraph: { title, description, url: "/", siteName: brandName, type: "website", locale: "en_GB" },
+    twitter: { card: "summary", title, description },
     keywords: ["bitcoin", "invoice", "lightning", "sats", "freelance", "LNURL"],
     // Favicon set lives in src/app/ (favicon.ico, icon.svg, icon.png, apple-icon.png)
     // and is picked up automatically by the Next.js file conventions.
@@ -38,6 +46,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <script
+          type="application/ld+json"
+          // Site-wide identity for search engines and AI assistants.
+          dangerouslySetInnerHTML={{ __html: siteJsonLd() }}
+        />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Toaster />
@@ -45,4 +58,22 @@ export default function RootLayout({
       </body>
     </html>
   );
+}
+
+function siteJsonLd(): string {
+  const op = getOperatorInfo();
+  const base = siteUrl();
+  return JSON.stringify([
+    { "@context": "https://schema.org", "@type": "Organization", name: op.name, url: base, email: op.contact },
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "SatInvoice",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: base,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "GBP", description: "Free plan; one-time unlock paid in sats" },
+      publisher: { "@type": "Organization", name: op.name },
+    },
+  ]).replace(/</g, "\\u003c");
 }
