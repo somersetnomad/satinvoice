@@ -539,7 +539,12 @@ export default function Home() {
       {/* Print portal: only this renders on paper/PDF */}
       <div id="invoice-print" className="hidden print:block">
         {printData ? (
-          <InvoiceDocument data={printData} brandName={brandName} className="border-0 shadow-none" />
+          <InvoiceDocument
+            data={printData}
+            brandName={brandName}
+            credit={unlocked ? null : appCredit()}
+            className="border-0 shadow-none"
+          />
         ) : null}
       </div>
 
@@ -609,4 +614,10 @@ function emptyDoc(settings: SettingsDTO | null): InvoiceDocData {
     totalSats: 0,
     lightningAddress: null,
   }
+}
+
+/** Free-plan credit for in-app printing (unlocked accounts print clean invoices). */
+function appCredit(): { url: string; host: string } | undefined {
+  if (typeof window === 'undefined') return undefined
+  return { url: window.location.origin, host: window.location.host }
 }

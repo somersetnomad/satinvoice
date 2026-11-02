@@ -136,7 +136,7 @@ export function PublicInvoiceView({ token }: { token: string }) {
             />
           ) : null}
           <div id="invoice-print">
-            <InvoiceDocument data={doc} brandName={invoice.brandName || undefined} />
+            <InvoiceDocument data={doc} brandName={invoice.brandName || undefined} credit={invoice.credit ?? null} />
           </div>
         </motion.div>
       </main>

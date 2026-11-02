@@ -73,7 +73,11 @@ export type Branding = {
 }
 
 /** Response of GET /api/public/invoices/[token] */
-export type PublicInvoiceResponse = InvoiceDTO & Branding
+export type PublicInvoiceResponse = InvoiceDTO &
+  Branding & {
+    /** Free-plan credit line (null once the sender has unlocked) */
+    credit: { url: string; host: string } | null
+  }
 
 export type LicenseStatusResponse = {
   unlocked: boolean

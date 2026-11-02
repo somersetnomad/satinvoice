@@ -20,7 +20,9 @@ export function buildInvoiceEmail(
   personalMessage?: string,
   publicUrl?: string,
   brandName = 'SatInvoice',
-  walletReferralUrl?: string
+  walletReferralUrl?: string,
+  /** Free-plan credit line; null/undefined = no credit (paid plan). */
+  credit?: { url: string; host: string } | null
 ): BuiltEmail {
   const brand = esc(brandName)
   const symbol = SYMBOLS[inv.currency] ?? ''
@@ -122,9 +124,9 @@ export function buildInvoiceEmail(
       ${inv.notes ? `<p style="margin:20px 0 0;font-size:13px;color:#6a6a6a;white-space:pre-line;">${esc(inv.notes)}</p>` : ''}
       <p style="margin:8px 0 0;text-align:right;font-size:12px;color:#8a8a8a;">Due: ${inv.dueDate ? formatDate(inv.dueDate) : 'On receipt'}</p>
     </div>
-    <div style="padding:14px 28px;background:#faf9f6;border-top:1px solid #eee;text-align:center;">
-      <p style="margin:0;font-size:11px;color:#b3b3b3;">Issued with ${brand} &#9889; — invoices on a bitcoin standard</p>
-    </div>
+    ${credit ? `<div style="padding:14px 28px;background:#faf9f6;border-top:1px solid #eee;text-align:center;">
+      <p style="margin:0;font-size:11px;color:#b3b3b3;">Invoiced with ${brand} &#9889; — bitcoin invoices for freelancers · <a href="${esc(credit.url)}" style="color:#ea580c;text-decoration:none;font-weight:600;">${esc(credit.host)}</a></p>
+    </div>` : ''}
   </div>
 </div>
 </body></html>`
@@ -146,7 +148,7 @@ export function buildInvoiceEmail(
     inv.lightningAddress && walletReferralUrl ? `New to Lightning? Get a free wallet: ${walletReferralUrl}` : '',
     `Due: ${inv.dueDate ? formatDate(inv.dueDate) : 'On receipt'}`,
     '',
-    `Issued with ${brandName} — invoices on a bitcoin standard`,
+    credit ? `Invoiced with ${brandName} — bitcoin invoices for freelancers: ${credit.url}` : '',
   ]
     .filter(Boolean)
     .join('\n')

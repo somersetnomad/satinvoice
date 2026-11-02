@@ -96,7 +96,13 @@ function wrap(text: string, font: PDFFont, size: number, maxWidth: number): stri
 
 export async function renderInvoicePdf(
   inv: InvoiceDTO,
-  opts: { brandName: string; clientView?: boolean; walletReferralUrl?: string }
+  opts: {
+    brandName: string
+    clientView?: boolean
+    walletReferralUrl?: string
+    /** Free-plan credit line; null/undefined = clean invoice (paid plan). */
+    credit?: { url: string; host: string } | null
+  }
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.create()
   doc.setTitle(`Invoice ${inv.number}`)
@@ -124,14 +130,22 @@ export async function renderInvoicePdf(
     page.drawText(t, { x: xRight - font.widthOfTextAtSize(t, size), y: yy, size, font, color })
   }
   const footer = () => {
-    const t = clean(`Issued with ${opts.brandName} - invoices on a bitcoin standard`)
-    page.drawText(t, {
-      x: (A4.w - f.regular.widthOfTextAtSize(t, 8)) / 2,
-      y: 28,
-      size: 8,
-      font: f.regular,
-      color: FAINT,
+    if (!opts.credit) return
+    const lead = clean(`Invoiced with ${opts.brandName} - bitcoin invoices for freelancers - `)
+    const host = clean(opts.credit.host)
+    const leadW = f.regular.widthOfTextAtSize(lead, 8)
+    const hostW = f.bold.widthOfTextAtSize(host, 8)
+    const x0 = (A4.w - leadW - hostW) / 2
+    page.drawText(lead, { x: x0, y: 28, size: 8, font: f.regular, color: FAINT })
+    page.drawText(host, { x: x0 + leadW, y: 28, size: 8, font: f.bold, color: ORANGE })
+    const annot = doc.context.obj({
+      Type: 'Annot',
+      Subtype: 'Link',
+      Rect: [x0, 25, x0 + leadW + hostW, 37],
+      Border: [0, 0, 0],
+      A: { Type: 'Action', S: 'URI', URI: PDFString.of(opts.credit.url) },
     })
+    page.node.addAnnot(doc.context.register(annot))
   }
   const ensure = (needed: number) => {
     if (y - needed >= M + 30) return

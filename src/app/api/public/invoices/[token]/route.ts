@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getInstanceConfig } from '@/lib/settings'
 import { type FiatCurrency, type InvoiceDTO, type LineItem } from '@/lib/types'
+import { creditFor } from '@/lib/credit'
 import { withApi } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +14,7 @@ export const dynamic = 'force-dynamic'
  * exposed. Returns an explicit whitelist of client-safe fields (never the
  * ownerId or internal bookkeeping).
  */
-async function GET__impl(_req: Request, { params }: { params: Promise<{ token: string }> }) {
+async function GET__impl(req: Request, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
 
   if (!/^[0-9a-f]{16,64}$/.test(token)) {
@@ -54,6 +55,7 @@ async function GET__impl(_req: Request, { params }: { params: Promise<{ token: s
     brandName: cfg.brandName,
     brandLogo: cfg.brandLogo,
     walletReferralUrl: cfg.walletReferralUrl,
+    credit: await creditFor(inv.ownerId, req),
   })
 }
 

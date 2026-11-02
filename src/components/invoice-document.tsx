@@ -38,12 +38,18 @@ export function InvoiceDocument({
   isPreview = false,
   className,
   brandName = 'SatInvoice',
+  credit,
 }: {
   data: InvoiceDocData
   isPreview?: boolean
   className?: string
   /** White-label footer credit (the operator's instance name) */
   brandName?: string
+  /**
+   * Free-plan credit line. Object = linked "Invoiced with … · host";
+   * null = no credit (sender has unlocked); undefined = plain credit (demos/previews).
+   */
+  credit?: { url: string; host: string } | null
 }) {
   const symbol = FIAT_SYMBOLS[data.currency] ?? ''
   const status = data.status ? STATUS_LABEL[data.status] : undefined
@@ -225,9 +231,19 @@ export function InvoiceDocument({
         ) : null}
       </div>
 
-      <p className="mt-6 border-t border-neutral-100 pt-4 text-center text-xs text-neutral-400">
-        Issued with {brandName} ⚡ — invoices on a bitcoin standard
-      </p>
+      {credit === null ? null : (
+        <p className="mt-6 border-t border-neutral-100 pt-4 text-center text-xs text-neutral-400">
+          Invoiced with {brandName} ⚡ — bitcoin invoices for freelancers
+          {credit ? (
+            <>
+              {' · '}
+              <a href={credit.url} className="font-semibold text-orange-600 hover:underline">
+                {credit.host}
+              </a>
+            </>
+          ) : null}
+        </p>
+      )}
     </div>
   )
 }

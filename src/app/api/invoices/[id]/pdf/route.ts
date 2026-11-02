@@ -4,6 +4,7 @@ import { requireUser, unauthorized } from '@/lib/auth'
 import { toInvoiceDTO } from '@/lib/invoices'
 import { getBranding } from '@/lib/settings'
 import { pdfFilename, renderInvoicePdf } from '@/lib/invoice-pdf'
+import { creditFor } from '@/lib/credit'
 import { withApi } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
@@ -18,7 +19,8 @@ async function GET__impl(req: Request, { params }: { params: Promise<{ id: strin
   if (!inv) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
 
   const { brandName, walletReferralUrl } = await getBranding()
-  const bytes = await renderInvoicePdf(toInvoiceDTO(inv), { brandName, walletReferralUrl })
+  const credit = await creditFor(inv.ownerId, req)
+  const bytes = await renderInvoicePdf(toInvoiceDTO(inv), { brandName, walletReferralUrl, credit })
   const inline = new URL(req.url).searchParams.get('inline') === '1'
   return new Response(Buffer.from(bytes), {
     headers: {

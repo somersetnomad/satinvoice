@@ -7,6 +7,7 @@ import { ensureShareToken, resolveOrigin } from '@/lib/share'
 import { toInvoiceDTO } from '@/lib/invoices'
 import { getBranding } from '@/lib/settings'
 import { pdfFilename, renderInvoicePdf } from '@/lib/invoice-pdf'
+import { creditFor } from '@/lib/credit'
 import { readJson, withApi } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
@@ -51,7 +52,8 @@ async function POST__impl(req: Request, { params }: { params: Promise<{ id: stri
   const { token } = await ensureShareToken(inv.id)
   const publicUrl = `${resolveOrigin(req, body.origin)}/?i=${token}`
   const { brandName, walletReferralUrl } = await getBranding()
-  const email = buildInvoiceEmail(dto, body.message, publicUrl, brandName, walletReferralUrl)
+  const credit = await creditFor(inv.ownerId, req)
+  const email = buildInvoiceEmail(dto, body.message, publicUrl, brandName, walletReferralUrl, credit)
 
   try {
     const transport = nodemailer.createTransport({
@@ -75,7 +77,7 @@ async function POST__impl(req: Request, { params }: { params: Promise<{ id: stri
       attachments: [
         {
           filename: pdfFilename(inv.number),
-          content: Buffer.from(await renderInvoicePdf(dto, { brandName, clientView: true, walletReferralUrl })),
+          content: Buffer.from(await renderInvoicePdf(dto, { brandName, clientView: true, walletReferralUrl, credit })),
           contentType: 'application/pdf',
         },
       ],
