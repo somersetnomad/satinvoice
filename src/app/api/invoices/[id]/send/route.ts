@@ -67,6 +67,8 @@ async function POST__impl(req: Request, { params }: { params: Promise<{ id: stri
     await transport.sendMail({
       from,
       to,
+      // Client replies go to the invoice sender's account email, not the shared sending address.
+      replyTo: user.email,
       subject: email.subject,
       text: email.text,
       html: email.html,
