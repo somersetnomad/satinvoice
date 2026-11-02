@@ -6,6 +6,7 @@ import { buildInvoiceEmail } from '@/lib/email-template'
 import { ensureShareToken, resolveOrigin } from '@/lib/share'
 import { toInvoiceDTO } from '@/lib/invoices'
 import { getBranding } from '@/lib/settings'
+import { pdfFilename, renderInvoicePdf } from '@/lib/invoice-pdf'
 import { readJson, withApi } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
@@ -69,6 +70,13 @@ async function POST__impl(req: Request, { params }: { params: Promise<{ id: stri
       subject: email.subject,
       text: email.text,
       html: email.html,
+      attachments: [
+        {
+          filename: pdfFilename(inv.number),
+          content: Buffer.from(await renderInvoicePdf(dto, { brandName, clientView: true })),
+          contentType: 'application/pdf',
+        },
+      ],
     })
 
   } catch (err) {

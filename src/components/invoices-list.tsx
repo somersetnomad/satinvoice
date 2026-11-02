@@ -16,7 +16,7 @@ import {
 import { FIAT_SYMBOLS, type InvoiceDTO } from '@/lib/types'
 import { formatDate, formatSats } from '@/lib/format'
 import { fetchJson } from '@/lib/utils'
-import { FileText, Link2, Mail, Pencil, Printer, Send, Trash2, Wallet } from 'lucide-react'
+import { FileDown, FileText, Link2, Mail, Pencil, Printer, Send, Trash2, Wallet } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import type { InvoiceDocData } from './invoice-document'
@@ -184,6 +184,11 @@ export function InvoicesList({
                     onClick={() => onEmail(inv)}
                   >
                     <Mail className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" asChild title="Download PDF">
+                    <a href={`/api/invoices/${inv.id}/pdf`} download aria-label={`Download ${inv.number} as PDF`}>
+                      <FileDown className="h-4 w-4" />
+                    </a>
                   </Button>
                   <Button
                     variant="outline"

@@ -7,7 +7,7 @@ import { InvoiceDocument, type InvoiceDocData } from '@/components/invoice-docum
 import { BrandMark } from '@/components/brand-mark'
 import type { PublicInvoiceResponse } from '@/lib/types'
 import { fetchJson } from '@/lib/utils'
-import { FileQuestion, Loader2, Printer } from 'lucide-react'
+import { FileDown, FileQuestion, Loader2, Printer } from 'lucide-react'
 
 /**
  * Client-facing read-only invoice page, reachable via /?i=<shareToken>.
@@ -100,9 +100,17 @@ export function PublicInvoiceView({ token }: { token: string }) {
             logo={invoice.brandLogo}
             size="sm"
           />
-          <Button size="sm" variant="outline" onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" /> Print / Save PDF
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" asChild>
+              <a href={`/api/public/invoices/${encodeURIComponent(token)}/pdf`} download>
+                <FileDown className="mr-2 h-4 w-4" /> Download PDF
+              </a>
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => window.print()} aria-label="Print">
+              <Printer className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Print</span>
+            </Button>
+          </div>
         </div>
       </header>
 
