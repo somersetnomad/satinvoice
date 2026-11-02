@@ -39,6 +39,10 @@ export default async function FaqPage() {
           The amount in pounds is what your client owes you. The sats figure is a convenient, ready-calculated way to pay
           it in bitcoin at the rate on the day you issued the invoice.
         </p>
+        <p>
+          For a step-by-step walkthrough with a worked example, see{' '}
+          <a href="/blog/how-to-invoice-a-client-in-bitcoin-uk">how to invoice a client in bitcoin</a>.
+        </p>
       </Section>
 
       <Section title="What if my client pays late and the bitcoin price has moved?">

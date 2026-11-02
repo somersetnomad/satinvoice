@@ -1,5 +1,5 @@
 id,query,cluster,intent,ai_prompt,priority,status,url,published,last_checked
-1,how to invoice a client in bitcoin uk,invoicing-in-bitcoin (pillar),guide,"How do I invoice a client in bitcoin as a UK freelancer?",5x4x5=100,drafted,/blog/how-to-invoice-a-client-in-bitcoin-uk,,2026-11-02
+1,how to invoice a client in bitcoin uk,invoicing-in-bitcoin (pillar),guide,"How do I invoice a client in bitcoin as a UK freelancer?",5x4x5=100,published,/blog/how-to-invoice-a-client-in-bitcoin-uk,2026-11-02,2026-11-02
 2,freelancer paid in bitcoin tax uk hmrc records,tax-and-records,guide,"How do I record bitcoin payments for HMRC as a self-employed freelancer?",5x4x4=80,queued,,,2026-11-02
 3,lightning address vs lightning invoice for invoices,lightning-basics,comparison,"Should I put a Lightning address or a Lightning invoice on my freelance invoice?",4x5x4=80,queued,,,2026-11-02
 4,what to do if client pays bitcoin invoice late price changed,invoicing-in-bitcoin,how-to,"My client paid my bitcoin invoice late and the price moved — who covers the difference?",4x5x4=80,queued,,,2026-11-02

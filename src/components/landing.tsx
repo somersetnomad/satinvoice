@@ -335,7 +335,12 @@ export function Landing({
           <div className="mx-auto max-w-6xl px-4 py-16">
             <motion.div {...fadeUp} className="mb-10 text-center">
               <h2 className="text-3xl font-bold tracking-tight">How it works</h2>
-              <p className="mt-2 text-muted-foreground">From line item to sats in your wallet — three steps.</p>
+              <p className="mt-2 text-muted-foreground">
+                From line item to sats in your wallet — three steps.{' '}
+                <a href="/blog/how-to-invoice-a-client-in-bitcoin-uk" className="font-medium text-primary underline-offset-4 hover:underline">
+                  Read the full guide
+                </a>
+              </p>
             </motion.div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {STEPS.map((s, i) => (

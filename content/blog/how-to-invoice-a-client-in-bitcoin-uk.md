@@ -4,7 +4,6 @@ description: "Price in pounds, show the sats at a stated rate, add a Lightning a
 date: 2026-11-02
 author: Bala Danmeri
 tags: [invoicing, lightning, uk, tax]
-draft: true
 faq:
   - q: "Can I legally invoice a UK client in bitcoin?"
     a: "Yes. Nothing stops you agreeing with a client to be paid in bitcoin. The simplest approach is to keep the invoice in pounds and offer bitcoin as a way to pay it, which keeps the amount owed clear. HMRC expects your Self Assessment to be completed in pounds sterling."
