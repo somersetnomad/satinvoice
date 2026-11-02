@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import type { ThemeProviderProps } from 'next-themes'
 import { WalletReferral } from '@/components/wallet-referral'
+import { FooterLinks } from '@/components/footer-links'
 
 const SAMPLE_DOC = {
   number: 'INV-2026-0042',
@@ -516,6 +517,7 @@ export function Landing({
             <Home className="h-3 w-3" aria-hidden="true" />
             {brand.name} — invoices on a bitcoin standard
           </p>
+          <FooterLinks />
           <button
             className="underline-offset-2 hover:underline"
             onClick={() => onLaunch('create')}

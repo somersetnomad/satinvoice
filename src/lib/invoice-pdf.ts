@@ -1,6 +1,7 @@
 import { PDFDocument, PDFString, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
 import QRCode from 'qrcode'
 import type { InvoiceDTO } from '@/lib/types'
+import { invoiceTotals } from '@/lib/format'
 
 /**
  * Server-side PDF rendering of an invoice (A4, vector text, real QR code).
@@ -222,28 +223,45 @@ export async function renderInvoicePdf(
   }
 
   /* ── Totals ─────────────────────────────────────────────────────────── */
-  ensure(110)
+  const { subtotal, vat } = invoiceTotals(inv.items, inv.vatRate)
+  const hasVat = !!inv.vatRate && inv.vatRate > 0
+  ensure(hasVat ? 160 : 130)
   y -= 4
   const totalsX = A4.w - M - 230
-  text(`Total (${cur})`, totalsX, y, 10, f.regular, MUTED)
+  if (hasVat) {
+    text('Subtotal', totalsX, y, 10, f.regular, MUTED)
+    right(fmtMoney(subtotal, cur), cAmt, y, 10)
+    y -= 15
+    text(`VAT (${inv.vatRate}%)`, totalsX, y, 10, f.regular, MUTED)
+    right(fmtMoney(vat, cur), cAmt, y, 10)
+    y -= 15
+  }
+  text(`Total (${cur})${hasVat ? ' incl. VAT' : ''}`, totalsX, y, 10, f.regular, MUTED)
   right(fmtMoney(inv.totalFiat, cur), cAmt, y, 12, f.bold)
   y -= 14
   page.drawRectangle({ x: totalsX - 10, y: y - 26, width: cAmt - totalsX + 10, height: 32, color: TINT })
   text('Pay in sats', totalsX, y - 15, 10, f.regular, DEEP)
   right(`${fmtSats(inv.totalSats)} sats`, cAmt - 8, y - 16, 14, f.monoBold, DEEP)
   y -= 42
-  right(
-    `Rate at issue: 1 BTC = ${fmtMoney(inv.fxRate, cur)}`,
-    cAmt,
-    y,
-    8,
-    f.regular,
-    FAINT
-  )
+  right(`Sats calculated at 1 BTC = ${fmtMoney(inv.fxRate, cur)} on ${fmtDate(inv.createdAt)}.`, cAmt, y, 8, f.regular, FAINT)
+  y -= 11
+  right(`The ${cur} total is the amount owed.`, cAmt, y, 8, f.regular, FAINT)
+  if (inv.status === 'paid' && inv.paidFxRate) {
+    y -= 16
+    const value = (inv.totalSats / 1e8) * inv.paidFxRate
+    right(
+      `Paid ${fmtDate(inv.paidAt)}: ${fmtSats(inv.totalSats)} sats were worth ${fmtMoney(value, cur)} at 1 BTC = ${fmtMoney(inv.paidFxRate, cur)}`,
+      cAmt,
+      y,
+      8,
+      f.bold,
+      rgb(0.02, 0.45, 0.25)
+    )
+  }
   y -= 26
 
   /* ── Lightning payment ──────────────────────────────────────────────── */
-  if (inv.lightningAddress) {
+  if (inv.lightningAddress && inv.status !== 'paid') {
     const qrSize = 96
     ensure(qrSize + 20)
     page.drawRectangle({ x: M, y: y - qrSize - 4, width: A4.w - 2 * M, height: 0.5, color: LINE })

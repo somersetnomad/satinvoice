@@ -30,7 +30,7 @@ import {
   type RateResponse,
   type SettingsDTO,
 } from '@/lib/types'
-import { fiatToSats, formatSats, isValidLightningAddress } from '@/lib/format'
+import { fiatToSats, formatSats, invoiceTotals, isValidLightningAddress } from '@/lib/format'
 import { WalletReferral } from '@/components/wallet-referral'
 
 export type InvoiceFormPayload = {
@@ -44,6 +44,7 @@ export type InvoiceFormPayload = {
   notes: string
   dueDate: string
   lightningAddress: string
+  vatRate: number | null
 }
 
 type Props = {
@@ -92,6 +93,7 @@ export function InvoiceForm({
   const [notes, setNotes] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [lnAddress, setLnAddress] = useState('')
+  const [vatRate, setVatRate] = useState('')
 
   const [manualRateMode, setManualRateMode] = useState(false)
   const [manualRate, setManualRate] = useState('')
@@ -110,6 +112,7 @@ export function InvoiceForm({
         setNotes(editing.notes ?? '')
         setDueDate(editing.dueDate ?? '')
         setLnAddress(editing.lightningAddress ?? '')
+        setVatRate(editing.vatRate ? String(editing.vatRate) : '')
         // Keep the rate the invoice was issued at; flip Manual off to re-price at the live rate.
         setManualRateMode(true)
         setManualRate(String(editing.fxRate))
@@ -145,14 +148,8 @@ export function InvoiceForm({
   const liveRate = rate?.rates?.[currency]
   const effectiveRate = manualRateMode ? Number(manualRate) || 0 : liveRate || 0
 
-  const totalFiat = useMemo(
-    () =>
-      items.reduce(
-        (sum, it) => sum + (Number(it.quantity) || 0) * (Number(it.unitPrice) || 0),
-        0
-      ),
-    [items]
-  )
+  const vatNum = Number(vatRate) > 0 ? Number(vatRate) : null
+  const { subtotal, vat, totalFiat } = useMemo(() => invoiceTotals(items, vatNum), [items, vatNum])
   const totalSats = fiatToSats(totalFiat, effectiveRate)
 
   // Persist the full draft so the live preview can mirror it.
@@ -171,6 +168,7 @@ export function InvoiceForm({
           notes,
           dueDate,
           lightningAddress: lnAddress,
+          vatRate: vatNum,
           totalFiat,
           totalSats,
         })
@@ -189,6 +187,7 @@ export function InvoiceForm({
     notes,
     dueDate,
     lnAddress,
+    vatNum,
     totalFiat,
     totalSats,
   ])
@@ -235,6 +234,7 @@ export function InvoiceForm({
       notes,
       dueDate,
       lightningAddress: lnAddress,
+      vatRate: vatNum,
     })
   }
 
@@ -451,6 +451,21 @@ export function InvoiceForm({
           />
         </div>
         <div className="space-y-1.5">
+          <Label htmlFor="vat-rate">VAT % (optional)</Label>
+          <Input
+            id="vat-rate"
+            type="number"
+            min="0"
+            max="100"
+            step="any"
+            inputMode="decimal"
+            placeholder="e.g. 20 — leave empty if not VAT-registered"
+            value={vatRate}
+            onChange={(e) => setVatRate(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">Put your VAT number in &quot;Your details&quot;.</p>
+        </div>
+        <div className="space-y-1.5">
           <Label htmlFor="ln-address">Lightning Address on invoice</Label>
           <Input
             id="ln-address"
@@ -481,6 +496,14 @@ export function InvoiceForm({
       {/* Totals + save */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
+          {vatNum ? (
+            <p className="text-xs text-muted-foreground">
+              Subtotal {symbol}
+              {subtotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + VAT{' '}
+              {vatNum}% {symbol}
+              {vat.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          ) : null}
           <p className="text-sm text-muted-foreground">
             Total: {symbol}
             {totalFiat.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

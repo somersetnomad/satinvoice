@@ -1,6 +1,6 @@
 import type { Invoice } from '@prisma/client'
 import { db } from '@/lib/db'
-import { fiatToSats, isValidLightningAddress } from '@/lib/format'
+import { fiatToSats, invoiceTotals, isValidLightningAddress } from '@/lib/format'
 import { FIAT_CURRENCIES, type FiatCurrency, type InvoiceDTO, type LineItem } from '@/lib/types'
 
 /** Shape a DB row for the owner's client. Never includes ownerId. */
@@ -28,6 +28,9 @@ export function toInvoiceDTO(inv: Invoice): InvoiceDTO {
     status: inv.status as InvoiceDTO['status'],
     totalFiat: inv.totalFiat,
     totalSats: inv.totalSats,
+    vatRate: inv.vatRate,
+    paidAt: inv.paidAt ? inv.paidAt.toISOString() : null,
+    paidFxRate: inv.paidFxRate,
     shareToken: inv.shareToken,
     sentTo: inv.sentTo,
     sentAt: inv.sentAt ? inv.sentAt.toISOString() : null,
@@ -46,6 +49,7 @@ export type InvoiceInput = {
   notes?: unknown
   dueDate?: unknown
   lightningAddress?: unknown
+  vatRate?: unknown
 }
 
 export type InvoiceFields = {
@@ -59,6 +63,7 @@ export type InvoiceFields = {
   notes: string | null
   dueDate: string | null
   lightningAddress: string | null
+  vatRate: number | null
   totalFiat: number
   totalSats: number
 }
@@ -108,7 +113,14 @@ export function validateInvoiceInput(
   if (dueDate && Number.isNaN(new Date(dueDate).getTime()))
     return { ok: false, error: 'Due date is not a valid date' }
 
-  const totalFiat = Math.round(items.reduce((sum, it) => sum + it.quantity * it.unitPrice, 0) * 100) / 100
+  let vatRate: number | null = null
+  if (body.vatRate !== undefined && body.vatRate !== null && String(body.vatRate).trim() !== '') {
+    const v = Number(body.vatRate)
+    if (!Number.isFinite(v) || v < 0 || v > 100) return { ok: false, error: 'VAT rate must be between 0 and 100%' }
+    vatRate = v > 0 ? Math.round(v * 100) / 100 : null
+  }
+
+  const { totalFiat } = invoiceTotals(items, vatRate)
 
   return {
     ok: true,
@@ -123,6 +135,7 @@ export function validateInvoiceInput(
       notes: str(body.notes) || null,
       dueDate,
       lightningAddress,
+      vatRate,
       totalFiat,
       totalSats: fiatToSats(totalFiat, fxRate),
     },

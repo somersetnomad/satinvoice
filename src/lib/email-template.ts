@@ -1,5 +1,5 @@
 import type { InvoiceDTO } from './types'
-import { formatDate, formatSats } from './format'
+import { formatDate, formatSats, invoiceTotals } from './format'
 
 function esc(value: string): string {
   return String(value ?? '')
@@ -29,6 +29,13 @@ export function buildInvoiceEmail(
     maximumFractionDigits: 2,
   })}`
   const subject = `Invoice ${inv.number} from ${inv.senderName} — ${fiatTotal} (${formatSats(inv.totalSats)} sats)`
+
+  const { subtotal, vat } = invoiceTotals(inv.items, inv.vatRate)
+  const hasVat = !!inv.vatRate && inv.vatRate > 0
+  const vatRows = hasVat
+    ? `<tr><td align="right" style="padding:4px 8px;color:#6a6a6a;font-size:13px;">Subtotal</td><td align="right" style="padding:4px 8px;color:#1a1a1a;font-size:13px;width:140px;">${symbol}${subtotal.toFixed(2)}</td></tr>
+       <tr><td align="right" style="padding:4px 8px;color:#6a6a6a;font-size:13px;">VAT (${inv.vatRate}%)</td><td align="right" style="padding:4px 8px;color:#1a1a1a;font-size:13px;width:140px;">${symbol}${vat.toFixed(2)}</td></tr>`
+    : ''
 
   const rows = inv.items
     .map(
@@ -100,8 +107,9 @@ export function buildInvoiceEmail(
         ${rows}
       </table>
       <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+        ${vatRows}
         <tr>
-          <td align="right" style="padding:4px 8px;color:#6a6a6a;font-size:14px;">Total (${esc(inv.currency)})</td>
+          <td align="right" style="padding:4px 8px;color:#6a6a6a;font-size:14px;">Total (${esc(inv.currency)})${hasVat ? ' incl. VAT' : ''}</td>
           <td align="right" style="padding:4px 8px;font-weight:700;color:#1a1a1a;font-size:15px;width:140px;">${fiatTotal}</td>
         </tr>
         <tr>
@@ -109,7 +117,7 @@ export function buildInvoiceEmail(
           <td align="right" style="padding:12px 8px;background:#fff7ed;border-radius:0 6px 6px 0;font-family:monospace;font-weight:800;color:#9a3412;font-size:18px;width:140px;">${formatSats(inv.totalSats)} sats</td>
         </tr>
       </table>
-      <p style="margin:8px 0 0;text-align:right;font-size:11px;color:#b3b3b3;">Rate at issue: 1 BTC = ${symbol}${inv.fxRate.toLocaleString('en-GB', { maximumFractionDigits: 2 })}</p>
+      <p style="margin:8px 0 0;text-align:right;font-size:11px;color:#b3b3b3;">Sats calculated at 1 BTC = ${symbol}${inv.fxRate.toLocaleString('en-GB', { maximumFractionDigits: 2 })} on ${formatDate(inv.createdAt)}. The ${esc(inv.currency)} total is the amount owed.</p>
       ${lnBlock}
       ${inv.notes ? `<p style="margin:20px 0 0;font-size:13px;color:#6a6a6a;white-space:pre-line;">${esc(inv.notes)}</p>` : ''}
       <p style="margin:8px 0 0;text-align:right;font-size:12px;color:#8a8a8a;">Due: ${inv.dueDate ? formatDate(inv.dueDate) : 'On receipt'}</p>
@@ -132,7 +140,8 @@ export function buildInvoiceEmail(
     ),
     '',
     `Total: ${fiatTotal}  ≈ ${formatSats(inv.totalSats)} sats`,
-    `Rate at issue: 1 BTC = ${symbol}${inv.fxRate.toLocaleString('en-GB', { maximumFractionDigits: 2 })}`,
+    ...(hasVat ? [`Subtotal: ${symbol}${subtotal.toFixed(2)}  VAT (${inv.vatRate}%): ${symbol}${vat.toFixed(2)}`] : []),
+    `Sats calculated at 1 BTC = ${symbol}${inv.fxRate.toLocaleString('en-GB', { maximumFractionDigits: 2 })} on ${formatDate(inv.createdAt)}. The ${inv.currency} total is the amount owed.`,
     inv.lightningAddress ? `Pay over Lightning: ${inv.lightningAddress}` : '',
     inv.lightningAddress && walletReferralUrl ? `New to Lightning? Get a free wallet: ${walletReferralUrl}` : '',
     `Due: ${inv.dueDate ? formatDate(inv.dueDate) : 'On receipt'}`,

@@ -80,3 +80,28 @@ export async function getBranding(): Promise<{
     return { brandName: DEFAULT_BRAND_NAME, brandLogo: null, walletReferralUrl: DEFAULT_WALLET_REFERRAL }
   }
 }
+
+/** Pricing + branding for public pages; never throws (falls back to defaults). */
+export async function getPublicConfigSafe(): Promise<{
+  brandName: string
+  unlockSats: number
+  freeInvoices: number
+  walletReferralUrl: string
+}> {
+  try {
+    const c = await getInstanceConfig()
+    return {
+      brandName: c.brandName,
+      unlockSats: c.unlockSats,
+      freeInvoices: c.freeInvoices,
+      walletReferralUrl: c.walletReferralUrl,
+    }
+  } catch {
+    return {
+      brandName: DEFAULT_BRAND_NAME,
+      unlockSats: DEFAULT_UNLOCK_SATS,
+      freeInvoices: DEFAULT_FREE_INVOICES,
+      walletReferralUrl: DEFAULT_WALLET_REFERRAL,
+    }
+  }
+}

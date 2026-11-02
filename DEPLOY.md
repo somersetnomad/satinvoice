@@ -22,6 +22,7 @@ A sats-native invoicing micro-tool. Next.js 16 + Prisma. Multi-user: every visit
 | `ZAPRITE_WEBHOOK_SECRET` | recommended with Zaprite — the webhook then only accepts calls carrying `?secret=<value>` |
 | `ALLOW_SELF_CONFIRM` | `true` lets users unlock by clicking *I've paid* without any verification (off by default — see *How unlock payments are confirmed*) |
 | `APP_URL` | optional public origin (e.g. `https://invoices.example.com`) used in share/email links |
+| `OPERATOR_NAME` `OPERATOR_PERSON` `OPERATOR_LOCATION` `OPERATOR_CONTACT` | who runs this copy, shown on the About, Privacy and Terms pages (default: Noor Intelligence). **Set these for each white-label copy.** |
 
 ---
 
@@ -142,7 +143,7 @@ You deployed with the SQLite schema (default `prisma/schema.prisma`) but a Postg
 
 ### Upgrading an existing deployment to this version
 
-This version adds database indexes and a `walletReferral` settings column. Run `npx prisma db push` once against your `DATABASE_URL` after deploying (it's non-destructive).
+This version adds database indexes, a `walletReferral` settings column, and invoice `vatRate` / `paidAt` / `paidFxRate` columns. Run `npx prisma db push` once against your `DATABASE_URL` after deploying (it's non-destructive).
 
 ### Browser shows "Unexpected end of JSON input" (fixed)
 

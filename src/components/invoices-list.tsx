@@ -16,7 +16,7 @@ import {
 import { FIAT_SYMBOLS, type InvoiceDTO } from '@/lib/types'
 import { formatDate, formatSats } from '@/lib/format'
 import { fetchJson } from '@/lib/utils'
-import { FileDown, FileText, Link2, Mail, Pencil, Printer, Send, Trash2, Wallet } from 'lucide-react'
+import { FileDown, FileText, Link2, Mail, Pencil, Printer, RefreshCw, Send, Trash2, Wallet } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import type { InvoiceDocData } from './invoice-document'
@@ -38,9 +38,11 @@ export function InvoicesList({
   onStatusChange,
   onDelete,
   onEdit,
+  onReprice,
 }: {
   invoices: InvoiceDTO[]
   onEdit: (invoice: InvoiceDTO) => void
+  onReprice: (invoice: InvoiceDTO) => Promise<void>
   onPrint: (data: InvoiceDocData) => void
   onEmail: (invoice: InvoiceDTO) => void
   onStatusChange: (id: string, status: 'draft' | 'sent' | 'paid') => Promise<void>
@@ -108,6 +110,9 @@ export function InvoicesList({
           totalSats: inv.totalSats,
           status: inv.status,
           createdAt: inv.createdAt,
+          vatRate: inv.vatRate,
+          paidAt: inv.paidAt,
+          paidFxRate: inv.paidFxRate,
         })
         return (
           <Card key={inv.id}>
@@ -156,6 +161,17 @@ export function InvoicesList({
                       onClick={() => onStatusChange(inv.id, 'paid')}
                     >
                       <Wallet className="mr-1.5 h-3.5 w-3.5" /> Mark paid
+                    </Button>
+                  ) : null}
+                  {inv.status !== 'paid' ? (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label={`Re-price ${inv.number} at today's BTC rate`}
+                      title="Re-price sats at today's BTC rate (the amount owed doesn't change)"
+                      onClick={() => onReprice(inv)}
+                    >
+                      <RefreshCw className="h-4 w-4" />
                     </Button>
                   ) : null}
                   <Button

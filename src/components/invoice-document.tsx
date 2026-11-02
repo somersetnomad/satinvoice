@@ -4,7 +4,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FIAT_SYMBOLS, type FiatCurrency, type LineItem } from '@/lib/types'
-import { formatDate, formatFiatPlain, formatSats } from '@/lib/format'
+import { formatDate, formatFiatPlain, formatSats, invoiceTotals } from '@/lib/format'
 
 export type InvoiceDocData = {
   number?: string | null
@@ -22,6 +22,9 @@ export type InvoiceDocData = {
   totalSats: number
   status?: string
   createdAt?: string | null
+  vatRate?: number | null
+  paidAt?: string | null
+  paidFxRate?: number | null
 }
 
 const STATUS_LABEL: Record<string, { label: string; className: string }> = {
@@ -44,6 +47,12 @@ export function InvoiceDocument({
 }) {
   const symbol = FIAT_SYMBOLS[data.currency] ?? ''
   const status = data.status ? STATUS_LABEL[data.status] : undefined
+  const { subtotal, vat } = invoiceTotals(data.items, data.vatRate)
+  const hasVat = !!data.vatRate && data.vatRate > 0
+  const fmtRate = (n: number) => `${symbol}${n.toLocaleString('en-GB', { maximumFractionDigits: 2 })}`
+  const issued = data.createdAt ? formatDate(data.createdAt) : 'the issue date'
+  const paidValue =
+    data.status === 'paid' && data.paidFxRate ? (data.totalSats / 1e8) * data.paidFxRate : null
 
   return (
     <div
@@ -141,8 +150,20 @@ export function InvoiceDocument({
       {/* Totals */}
       <div className="mt-4 flex justify-end">
         <div className="w-full max-w-xs space-y-1.5 text-sm">
+          {hasVat ? (
+            <>
+              <div className="flex justify-between text-neutral-600">
+                <span>Subtotal</span>
+                <span className="tabular-nums text-neutral-900">{formatFiatPlain(subtotal, data.currency)}</span>
+              </div>
+              <div className="flex justify-between text-neutral-600">
+                <span>VAT ({data.vatRate}%)</span>
+                <span className="tabular-nums text-neutral-900">{formatFiatPlain(vat, data.currency)}</span>
+              </div>
+            </>
+          ) : null}
           <div className="flex justify-between text-neutral-600">
-            <span>Total ({data.currency})</span>
+            <span>Total ({data.currency}){hasVat ? ' incl. VAT' : ''}</span>
             <span className="font-semibold tabular-nums text-neutral-900">
               {formatFiatPlain(data.totalFiat, data.currency)}
             </span>
@@ -153,16 +174,28 @@ export function InvoiceDocument({
               {formatSats(data.totalSats)} <span className="text-sm font-semibold">sats</span>
             </span>
           </div>
-          <p className="text-right text-xs text-neutral-400">
-            Rate at issue: 1 BTC = {symbol}
-            {data.fxRate.toLocaleString('en-GB', { maximumFractionDigits: 2 })}
-          </p>
+          {data.fxRate > 0 ? (
+            <p className="text-right text-xs leading-relaxed text-neutral-400">
+              Sats calculated at 1 BTC = {fmtRate(data.fxRate)} on {issued}.
+              <br />
+              The {data.currency} total is the amount owed.
+            </p>
+          ) : null}
+          {paidValue !== null && data.paidFxRate ? (
+            <p className="rounded-md bg-emerald-50 px-3 py-2 text-right text-xs text-emerald-800">
+              Paid {data.paidAt ? formatDate(data.paidAt) : ''}: {formatSats(data.totalSats)} sats were worth{' '}
+              <span className="font-semibold">{formatFiatPlain(paidValue, data.currency)}</span> at 1 BTC ={' '}
+              {fmtRate(data.paidFxRate)}
+            </p>
+          ) : null}
         </div>
       </div>
 
       {/* Payment QR + notes */}
       <div className="mt-6 flex flex-wrap items-start justify-between gap-6 border-t border-neutral-200 pt-6">
-        {data.lightningAddress ? (
+        {data.status === 'paid' ? (
+          <div className="text-sm font-medium text-emerald-700">Paid — thank you.</div>
+        ) : data.lightningAddress ? (
           <div className="flex items-center gap-4">
             <div className="rounded-md border border-neutral-200 bg-white p-2">
               <QRCodeSVG

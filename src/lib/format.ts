@@ -1,4 +1,4 @@
-import { FIAT_SYMBOLS, type FiatCurrency } from './types'
+import { FIAT_SYMBOLS, type FiatCurrency, type LineItem } from './types'
 
 /** Format satoshis with thin thousand separators, e.g. 1234567 -> "1,234,567" */
 export function formatSats(sats: number): string {
@@ -45,4 +45,12 @@ export function formatDate(iso: string | null | undefined): string {
 /** Lightning Address syntax check: user@domain */
 export function isValidLightningAddress(address: string): boolean {
   return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(address.trim())
+}
+
+/** Subtotal, VAT and total (2dp). Shared by the server and every invoice view. */
+export function invoiceTotals(items: LineItem[], vatRate: number | null | undefined) {
+  const r2 = (n: number) => Math.round(n * 100) / 100
+  const subtotal = r2(items.reduce((sum, it) => sum + (Number(it.quantity) || 0) * (Number(it.unitPrice) || 0), 0))
+  const vat = vatRate && vatRate > 0 ? r2((subtotal * vatRate) / 100) : 0
+  return { subtotal, vat, totalFiat: r2(subtotal + vat) }
 }

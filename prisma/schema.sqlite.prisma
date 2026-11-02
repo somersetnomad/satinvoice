@@ -41,6 +41,9 @@ model Invoice {
   status           String    @default("draft") // draft | sent | paid
   totalFiat        Float
   totalSats        Int
+  vatRate          Float? // VAT % applied on top of the line items (null/0 = no VAT)
+  paidAt           DateTime? // when the invoice was marked paid
+  paidFxRate       Float? // BTC price in `currency` when marked paid (for the books)
   shareToken       String?   @unique // unguessable token for the public invoice page (?i=token)
   sentTo           String? // email address the invoice was last sent to
   sentAt           DateTime?

@@ -17,6 +17,7 @@ import { Landing } from '@/components/landing'
 import { PublicInvoiceView } from '@/components/public-invoice'
 import { AuthCard, type AuthUser } from '@/components/auth-card'
 import { BrandMark } from '@/components/brand-mark'
+import { FooterLinks } from '@/components/footer-links'
 import {
   FREE_INVOICE_LIMIT,
   UNLOCK_PRICE_SATS,
@@ -283,6 +284,27 @@ export default function Home() {
     }
   }
 
+  const handleReprice = async (inv: InvoiceDTO) => {
+    try {
+      const updated = await fetchJson<InvoiceDTO>(`/api/invoices/${inv.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reprice: true }),
+      })
+      await loadInvoices()
+      toast({
+        title: `${updated.number} re-priced`,
+        description: `Now ${formatSats(updated.totalSats)} sats (was ${formatSats(inv.totalSats)}) at today's rate.`,
+      })
+    } catch (err) {
+      toast({
+        title: 'Re-price failed',
+        description: err instanceof Error ? err.message : 'Please try again.',
+        variant: 'destructive',
+      })
+    }
+  }
+
   const handleDelete = async (id: string) => {
     try {
       await fetchJson(`/api/invoices/${id}`, { method: 'DELETE' })
@@ -481,6 +503,7 @@ export default function Home() {
               onStatusChange={handleStatusChange}
               onDelete={handleDelete}
               onEdit={startEdit}
+              onReprice={handleReprice}
             />
           </TabsContent>
 
@@ -501,11 +524,12 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="mt-auto border-t py-4 print:hidden">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 text-xs text-muted-foreground">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 text-xs text-muted-foreground">
           <p>
             {brandName} ⚡ — a micro-tool on a bitcoin standard.{' '}
             {unlocked ? 'Unlimited plan active.' : `${usedCount}/${freeLimit} free invoices used.`}
           </p>
+          <FooterLinks />
           <p className="font-mono">
             {formatSats(unlockSats)} sats = your price, in your money.
           </p>
@@ -555,6 +579,7 @@ function PreviewDoc({ settings }: { settings: SettingsDTO | null }) {
           lightningAddress: draft.lightningAddress || null,
           totalFiat: draft.totalFiat ?? 0,
           totalSats: draft.totalSats ?? 0,
+          vatRate: draft.vatRate ?? null,
         } satisfies InvoiceDocData
       } catch {
         return null

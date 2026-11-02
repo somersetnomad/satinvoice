@@ -36,6 +36,11 @@ export type InvoiceDTO = {
   status: 'draft' | 'sent' | 'paid'
   totalFiat: number
   totalSats: number
+  /** VAT % (null = no VAT). totalFiat already includes VAT. */
+  vatRate: number | null
+  /** When the invoice was marked paid, and the BTC rate on that day */
+  paidAt: string | null
+  paidFxRate: number | null
   shareToken?: string | null
   sentTo?: string | null
   sentAt?: string | null

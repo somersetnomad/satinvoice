@@ -9,6 +9,7 @@ import type { PublicInvoiceResponse } from '@/lib/types'
 import { fetchJson } from '@/lib/utils'
 import { FileDown, FileQuestion, Loader2, Printer } from 'lucide-react'
 import { WalletReferral } from '@/components/wallet-referral'
+import { FooterLinks } from '@/components/footer-links'
 
 /**
  * Client-facing read-only invoice page, reachable via /?i=<shareToken>.
@@ -89,6 +90,9 @@ export function PublicInvoiceView({ token }: { token: string }) {
     // Clients never see "draft" — a shared invoice is, to them, an issued one.
     status: invoice.status === 'draft' ? 'sent' : invoice.status,
     createdAt: invoice.createdAt,
+    vatRate: invoice.vatRate,
+    paidAt: invoice.paidAt,
+    paidFxRate: invoice.paidFxRate,
   }
 
   return (
@@ -143,6 +147,7 @@ export function PublicInvoiceView({ token }: { token: string }) {
           <a href="/" className="font-medium text-primary underline-offset-4 hover:underline">
             Create your own →
           </a>
+          <FooterLinks className="mt-2 justify-center" />
         </div>
       </footer>
     </div>

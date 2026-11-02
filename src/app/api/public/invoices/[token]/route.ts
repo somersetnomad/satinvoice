@@ -41,6 +41,9 @@ async function GET__impl(_req: Request, { params }: { params: Promise<{ token: s
     status: inv.status as InvoiceDTO['status'],
     totalFiat: inv.totalFiat,
     totalSats: inv.totalSats,
+    vatRate: inv.vatRate,
+    paidAt: inv.paidAt ? inv.paidAt.toISOString() : null,
+    paidFxRate: inv.paidFxRate,
     createdAt: inv.createdAt.toISOString(),
   }
 
