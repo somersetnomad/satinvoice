@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String // scrypt: salt:hash
+  role         String    @default("user") // operator (first user) | user
+  createdAt    DateTime  @default(now())
+}
+
+model Session {
+  token     String   @id // random 32-byte hex, stored in an httpOnly cookie
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Invoice {
+  id               String    @id @default(cuid())
+  ownerId          String // User.id — invoices are private to their owner
+  number           String    @unique
+  senderName       String
+  senderDetails    String    @default("") // free-form lines: address, email, vat...
+  clientName       String
+  clientDetails    String    @default("")
+  currency         String    @default("GBP") // GBP | USD | EUR
+  fxRate           Float // BTC price in `currency` at time of issue
+  items            String // JSON: [{ description, quantity, unitPrice }]
+  notes            String?
+  dueDate          String?
+  lightningAddress String?
+  status           String    @default("draft") // draft | sent | paid
+  totalFiat        Float
+  totalSats        Int
+  shareToken       String?   @unique // unguessable token for the public invoice page (?i=token)
+  sentTo           String? // email address the invoice was last sent to
+  sentAt           DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([ownerId])
+}
+
+model License {
+  id             String    @id @default(cuid())
+  ownerId        String // User.id — unlocks are per user
+  key            String    @unique
+  provider       String // demo | lnurl | zaprite
+  sats           Int
+  status         String    @default("pending") // pending | paid
+  paymentRequest String? // bolt11 invoice (lnurl flow)
+  reference      String? // zaprite: license key · lnurl: LUD-21 verify URL (or the Lightning Address)
+  paidAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([ownerId])
+}
+
+model Settings {
+  id               String   @id // == User.id (one settings row per user)
+  defaultCurrency  String   @default("GBP")
+  operatorLn       String? // OPERATOR ONLY: Lightning address receiving unlock payments
+  operatorZaprite  String? // OPERATOR ONLY: hosted Zaprite payment link for the unlock
+  unlockSats       Int? // OPERATOR ONLY: one-time unlock price in sats (null = 21,000)
+  freeInvoices     Int? // OPERATOR ONLY: free invoices per account (null = 3)
+  brandName        String? // OPERATOR ONLY: white-label instance name (null = "SatInvoice")
+  brandLogo        String? // OPERATOR ONLY: URL of the brand logo image
+  updatedAt        DateTime @updatedAt
+}

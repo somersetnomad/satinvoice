@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- SatInvoice mark: bitcoin-orange tile + warm-white bolt (matches app primary) -->
+  <rect width="64" height="64" rx="14" fill="#ED8800"/>
+  <path d="M34.4 8 L10.4 36.8 L32 36.8 L29.6 56 L53.6 27.2 L32 27.2 Z"
+        fill="#FFFBF4" stroke="#FFFBF4" stroke-width="1.6" stroke-linejoin="round"/>
+</svg>
