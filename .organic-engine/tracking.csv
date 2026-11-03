@@ -1,3 +1,5 @@
 date,url,query,source,position_or_result,ai_cited,notes
 2026-11-03,/blog/how-to-invoice-a-client-in-bitcoin-uk,how to invoice a client in bitcoin uk,spot_check,not in top ~20 results (WebSearch tool; US-based; not a true ranking),n/a,post 1 day old; results led by tryspeed.com and BDO; stacker.news item we cite appears
 2026-11-03,site:invoice.noorintelligence.tech,site: query,spot_check,no pages from the domain returned (WebSearch tool),n/a,not yet indexed or not visible to this search tool; Search Console not connected
+2026-11-03,site:invoice.noorintelligence.tech,site: query,spot_check,no pages from the domain returned (WebSearch tool; run 2),n/a,still not visible; Search Console not connected
+2026-11-03,/blog/how-to-record-bitcoin-payments-for-hmrc,how to record bitcoin payments for hmrc self-employed freelancer,spot_check,not in returned results (~17; WebSearch tool; US-based; not a true ranking),n/a,post <1 day old; results led by AccountingWEB thread, Rift, CoinTracking, Blockpit
