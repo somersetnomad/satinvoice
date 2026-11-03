@@ -60,7 +60,9 @@ export default async function FaqPage() {
         </ul>
         <p>
           When you mark an invoice as paid, {b} also records that day&apos;s rate and shows what the sats were worth in
-          pounds at the time of payment, which is handy for both your books and your client&apos;s.
+          pounds at the time of payment, which is handy for both your books and your client&apos;s. For what to record
+          and how long to keep it, see{' '}
+          <a href="/blog/how-to-record-bitcoin-payments-for-hmrc">how to record bitcoin payments for HMRC</a>.
         </p>
       </Section>
 

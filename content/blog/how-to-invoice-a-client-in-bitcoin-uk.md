@@ -99,7 +99,7 @@ HMRC's record-keeping list for receiving cryptoassets asks for exactly this kind
 
 How it's taxed depends on your circumstances. HMRC's guidance says cryptoassets you receive have a value in pounds, and that income which isn't from employment is usually treated as either trading or miscellaneous income ([HMRC](https://www.gov.uk/guidance/check-if-you-need-to-pay-tax-when-you-receive-cryptoassets)). Separately, if you later sell the bitcoin, swap it, or spend it on goods or services, you may owe Capital Gains Tax on any gain ([HMRC](https://gov.uk/guidance/check-if-you-need-to-pay-tax-when-you-sell-cryptoassets)).
 
-HMRC's pages don't spell out the freelancer case step by step, so if bitcoin becomes a meaningful share of your income, it's worth an hour with an accountant who knows crypto. The records above are exactly what they'll ask you for.
+HMRC's pages don't spell out the freelancer case step by step, so if bitcoin becomes a meaningful share of your income, it's worth an hour with an accountant who knows crypto. The records above are exactly what they'll ask you for. For a ready-made ledger layout and a worked example, see [how to record bitcoin payments for HMRC](/blog/how-to-record-bitcoin-payments-for-hmrc).
 
 ## What if the client pays late and the price has moved?
 

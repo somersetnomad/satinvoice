@@ -1,4 +1,4 @@
-# Audit — 2026-11-02 (first run)
+# Audit — 2026-11-02 (first run); 2026-11-03 note: site: spot check returned no indexed pages — owner to verify Search Console + submit sitemap
 
 Source: repo source review (site is server-rendered Next.js).
 
